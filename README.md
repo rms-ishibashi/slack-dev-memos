@@ -18,10 +18,10 @@ jsonのフォーマットが統一されておらず参照しづらいので、�
 
 ```json
 {
-	"ts": timestamp(float),
-	"user": user_id(string),
-	"text": text(string),
-	"type": type(strin)
+	"ts": "timestamp(float)",
+	"user": "user_id(string)",
+	"text": "text(string)",
+	"type": "type(string)"
 }
 ```
 
