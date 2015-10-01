@@ -59,6 +59,7 @@ for msg in data:
 ```
 
 こういうフォーマットになっている。あと、これらの属性に加えて _subtype_ 属性があったりなかったり。
+
 ※ _type_ 属性については _"message"_ 以外の値がなかった。
 
 で、１段目の要素を見ていると次のような結果が出た。
@@ -67,7 +68,9 @@ for msg in data:
 2. ユーザを参照する属性名が統一されていない。
 3. トップレベルからはユーザ情報を参照できない場合さえある
 
+
 -----
+
 
 残りは雑多なメモ。
 そのうち整理する予定。。
@@ -113,9 +116,11 @@ _comment_ 属性がトップレベルに存在する場合は _comment_ の中�
 ```	
 
 この場合は
-　時刻: message["comment"]["timestamp"]
-　ユーザ: message["comment"]["user"]
-　テキスト: message["comment"]["comment"]
+
+- 時刻: message["comment"]["timestamp"]
+- ユーザ: message["comment"]["user"]
+- テキスト: message["comment"]["comment"]
+
 こんな感じで参照が可能。
 
 
