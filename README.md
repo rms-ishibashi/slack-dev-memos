@@ -5,17 +5,48 @@ Slack上のメッセージを取得したいときのTipsやメモ。
 
 jsonのフォーマットが統一されておらず参照しづらいので、どういうフォーマットになっていいるのか調査してみました。		
 
+#️ 要件
+最低限、以下の3つの情報はないと話にならないと思われる。
+
+- 時刻
+- ユーザ名(ID)
+- POSTしたテキスト
+
+全ポストからこの3つの情報を取得したい、っていうのが今回の要件。
+
+# 結論
+時刻とテキストについては、
+
+```python
+data = json.load(open("posts.json"))
+for msg in data:
+	print msg.get("ts", "")
+	print msg.get("text", "")
+```
+
+のような感じでOK。
+
+_id_ の取得については、以下の条件で取得できないものはスルー。
+検証条件の下では、これに該当するポストは全体の0.2[%]だったので無視して良いと結論づけます。
+
+```python
+def get_user_id(m):
+    if m.has_key("user"): return m["user"]
+    if m.has_key("bot_id"): return m["bot_id"]
+    return None
+
+for msg in data:
+	uid = get_user_id(msg)
+	if uid is None:
+		continue
+	# do something ...
+```
+
 # 検証条件
 自社Slack randomチャンネル
 2014年4月〜2015年9月の期間中にポストされたメッセージを見てみた。
 
 # メッセージのフォーマットについて
-最低限、以下の3つの情報はないと話にならないと思われる。
-
-- 時刻
-- ユーザ名(またはID)
-- POSTしたテキスト
-
 基本的には
 
 ```json
@@ -27,10 +58,10 @@ jsonのフォーマットが統一されておらず参照しづらいので、�
 }
 ```
 
-こういうフォーマットになっている。あとは _subtype_ 属性があったりなかったり。
-_type_ 属性は _"message"_ 以外の値がなかった。
+こういうフォーマットになっている。あと、これらの属性に加えて _subtype_ 属性があったりなかったり。
+※ _type_ 属性については _"message"_ 以外の値がなかった。
 
-で、トップから見える要素を見ていると次のような結果が出た。
+で、１段目の要素を見ていると次のような結果が出た。
 
 1. 時刻 _ts_ と テキスト _text_ は必ずある
 2. ユーザを参照する属性名が統一されていない。
@@ -63,3 +94,30 @@ _subtype_ が _"file_share"_ のときは画像のアップロードが行われ
 ```	
 
 この場合はおとなしくスルーするぐらいしか手がないと思われる。それ以外であれば _username_ 属性を参照すればユーザのIDを見ることができる。
+
+
+# 雑多なメモ
+後からまとめる。
+_comment_ 属性がトップレベルに存在する場合は _comment_ の中を見れば最低限の情報は参照できる。例えばこんな感じ:
+
+```json
+{u'comment': u'',
+  u'created': 1438946160,
+  u'id': u'zzzzzzzzz',
+  u'timestamp': 1438946160,
+  u'user': u'Uxxxxxxxx'}
+```	
+
+この場合は
+　時刻: message["comment"]["timestamp"]
+　ユーザ: message["comment"]["user"]
+　テキスト: message["comment"]["comment"]
+こんな感じで参照が可能。
+
+
+```python
+data = json.load(open("posts.json"))
+for m in data:
+	if x.has_key("comment"):
+		pass // comment属性以下から情報を取得
+	if 
